@@ -5,19 +5,10 @@ import com.kirilov.model.Transaction;
 import com.kirilov.model.TransactionBuilder;
 import com.kirilov.model.TransactionType;
 import com.kirilov.service.TransactionService;
-import com.sun.deploy.net.BasicHttpRequest;
-import com.sun.deploy.net.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @Controller
 public class TransactionController {
@@ -59,8 +50,6 @@ public class TransactionController {
             transactionService.debitBalanceAccount(transaction);
         } catch (LevelpTransactionException e) {
             return e.getMessage();
-        } catch (EmptyResultDataAccessException e) {
-            return "Account not found";
         }
         return "OK";
     }

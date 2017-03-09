@@ -66,11 +66,12 @@ public class TransactionService {
         Account processAccount = accountDao.findbyId(transaction.getId());
         if (processAccount.getBalance() - transaction.getSum() >= 0) {
             processAccount.setBalance(processAccount.getBalance() - transaction.getSum());
+            accountDao.updateBalance(processAccount);
         } else {
+            removeFromProcessIdList(transaction.getId());
             throw new LevelpTransactionException("On account " + transaction.getId() + " has insufficient funds");
         }
         removeFromProcessIdList(transaction.getId());
-
     }
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
@@ -79,6 +80,7 @@ public class TransactionService {
         Account processAccount = accountDao.findbyId(transaction.getId());
         if (processAccount != null) {
             processAccount.setBalance(processAccount.getBalance() + transaction.getSum());
+            accountDao.updateBalance(processAccount);
         }
         removeFromProcessIdList(transaction.getId());
     }
@@ -95,6 +97,8 @@ public class TransactionService {
             accountDao.updateBalance(fromAccount);
             accountDao.updateBalance(toAccount);
         } else {
+            removeFromProcessIdList(transaction.getId());
+            removeFromProcessIdList(transaction.getFromId());
             throw new LevelpTransactionException("On account" + transaction.getFromId() + " has insufficient funds");
         }
         removeFromProcessIdList(transaction.getId());

@@ -32,7 +32,6 @@
                 url: "/delete",
                 data: ({id: id}),
                 success: function (jqXHR, textStatus, errorThrown) {
-                    alert(jqXHR.responseText);
                     reload();
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -45,7 +44,7 @@
                 type: "POST",
                 url: "/additionalSum",
                 data: ({id: $("#toIdAccount").val(), sum: $("#addedSum").val()}),
-                success: function (jqXHR, textStatus, errorThrown) {;
+                success: function (jqXHR, textStatus, errorThrown) {
                     reload();
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
