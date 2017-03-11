@@ -3,6 +3,8 @@ package com.kirilov.service;
 import com.kirilov.dao.AccountDao;
 import com.kirilov.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -48,60 +50,54 @@ public class TransactionService {
         return accountDao.delete(id);
     }
 
-    private void findAccountById(int id) throws LevelpTransactionException {
-        accountDao.findbyId(id);
-    }
-
-    private boolean updateAccount(Account account) {
-        return accountDao.updateBalance(account);
-    }
-
     public List<Account> getAllAccount() {
         return accountDao.getAllAccount();
     }
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
-    public void debitBalanceAccount(Transaction transaction) throws LevelpTransactionException {
+    public void debitBalanceAccount(Transaction transaction) throws LevelpTransactionException, DataAccessException {
         addToProcessIdList(transaction.getId());
-        Account processAccount = accountDao.findbyId(transaction.getId());
-        if (processAccount.getBalance() - transaction.getSum() >= 0) {
-            processAccount.setBalance(processAccount.getBalance() - transaction.getSum());
-            accountDao.updateBalance(processAccount);
-        } else {
+        try {
+            Account processAccount = accountDao.findbyId(transaction.getId());
+            if (processAccount.getBalance() - transaction.getSum() >= 0) {
+                processAccount.setBalance(processAccount.getBalance() - transaction.getSum());
+                accountDao.updateBalance(processAccount);
+            } else {
+                throw new LevelpTransactionException("On account " + transaction.getId() + " has insufficient funds");
+            }
+        } finally {
             removeFromProcessIdList(transaction.getId());
-            throw new LevelpTransactionException("On account " + transaction.getId() + " has insufficient funds");
         }
-        removeFromProcessIdList(transaction.getId());
     }
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
-    public void addedBalanceAccount(Transaction transaction) {
+    public void addedBalanceAccount(Transaction transaction) throws DataAccessException {
         addToProcessIdList(transaction.getId());
-        Account processAccount = accountDao.findbyId(transaction.getId());
-        if (processAccount != null) {
+        try {
+            Account processAccount = accountDao.findbyId(transaction.getId());
             processAccount.setBalance(processAccount.getBalance() + transaction.getSum());
             accountDao.updateBalance(processAccount);
+        } finally {
+            removeFromProcessIdList(transaction.getId());
         }
-        removeFromProcessIdList(transaction.getId());
     }
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
-    public void doTransfer(Transaction transaction) throws LevelpTransactionException {
+    public void doTransfer(Transaction transaction) throws LevelpTransactionException, DataAccessException {
         addToProcessIdList(transaction.getId());
         addToProcessIdList(transaction.getFromId());
-        Account fromAccount = accountDao.findbyId(transaction.getFromId());
-        Account toAccount = accountDao.findbyId(transaction.getId());
-        if (fromAccount.getBalance() - transaction.getSum() >= 0) {
-            fromAccount.setBalance(fromAccount.getBalance() - transaction.getSum());
-            toAccount.setBalance(toAccount.getBalance() + transaction.getSum());
-            accountDao.updateBalance(fromAccount);
-            accountDao.updateBalance(toAccount);
-        } else {
+        try {
+            Account fromAccount = accountDao.findbyId(transaction.getFromId());
+            Account toAccount = accountDao.findbyId(transaction.getId());
+            if (fromAccount.getBalance() - transaction.getSum() >= 0) {
+                fromAccount.setBalance(fromAccount.getBalance() - transaction.getSum());
+                toAccount.setBalance(toAccount.getBalance() + transaction.getSum());
+            } else {
+                throw new LevelpTransactionException("On account" + transaction.getFromId() + " has insufficient funds");
+            }
+        } finally {
             removeFromProcessIdList(transaction.getId());
             removeFromProcessIdList(transaction.getFromId());
-            throw new LevelpTransactionException("On account" + transaction.getFromId() + " has insufficient funds");
         }
-        removeFromProcessIdList(transaction.getId());
-        removeFromProcessIdList(transaction.getFromId());
     }
 }

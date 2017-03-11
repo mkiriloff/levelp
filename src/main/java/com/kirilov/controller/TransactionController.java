@@ -6,9 +6,13 @@ import com.kirilov.model.TransactionBuilder;
 import com.kirilov.model.TransactionType;
 import com.kirilov.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Controller
 public class TransactionController {
@@ -17,11 +21,11 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @RequestMapping(value = "/additionalSum", params = {"id", "sum"}, method = RequestMethod.POST)
-    public
     @ResponseBody
-    String additionalSum(
+    public void additionalSum(
             @RequestParam("id") int toId,
-            @RequestParam("sum") int sum) {
+            @RequestParam("sum") int sum,
+            HttpServletResponse response) throws IOException {
         Transaction transaction = new TransactionBuilder()
                 .setTransactionType(TransactionType.ADDEDBALANCE)
                 .setId(toId)
@@ -29,18 +33,18 @@ public class TransactionController {
                 .build();
         try {
             transactionService.addedBalanceAccount(transaction);
-        } catch (EmptyResultDataAccessException e) {
-            return "Account not found";
+        } catch (Exception e) {
+            handleError(response, e.getMessage());
         }
-        return "OK";
+        handleError(response, "Account updated");
     }
 
     @RequestMapping(value = "/debitSum", params = {"id", "sum"}, method = RequestMethod.POST)
-    public
     @ResponseBody
-    String deductionSum(
+    public void deductionSum(
             @RequestParam("id") int toId,
-            @RequestParam("sum") int sum) {
+            @RequestParam("sum") int sum,
+            HttpServletResponse response) throws IOException {
         Transaction transaction = new TransactionBuilder()
                 .setTransactionType(TransactionType.DEBITBALANCE)
                 .setId(toId)
@@ -48,19 +52,19 @@ public class TransactionController {
                 .build();
         try {
             transactionService.debitBalanceAccount(transaction);
-        } catch (LevelpTransactionException e) {
-            return e.getMessage();
+        } catch (Exception e) {
+            handleError(response, e.getMessage());
         }
-        return "OK";
+        handleError(response, "Account updated");
     }
 
-    @RequestMapping(value = "/doTransfer", params = {"fromId", "toId", "sum"}, method = RequestMethod.POST)
-    public
+    @RequestMapping(value = "/doTransfer", params = {"fromid", "toid", "sum"}, method = RequestMethod.POST)
     @ResponseBody
-    String transfer(
-            @RequestParam("fromId") int fromId,
-            @RequestParam("toId") int toId,
-            @RequestParam("sum") int sum) {
+    public void transfer(
+            @RequestParam("fromid") int fromId,
+            @RequestParam("toid") int toId,
+            @RequestParam("sum") int sum,
+            HttpServletResponse response) throws IOException {
         Transaction transaction = new TransactionBuilder()
                 .setTransactionType(TransactionType.TRANSFER)
                 .setFromId(fromId)
@@ -69,11 +73,20 @@ public class TransactionController {
                 .build();
         try {
             transactionService.doTransfer(transaction);
-        } catch (LevelpTransactionException e) {
-            return e.getMessage();
-        } catch (EmptyResultDataAccessException e) {
-            return "Account not found";
+        } catch (Exception e) {
+            handleError(response, e.getMessage());
         }
-        return "OK";
+        handleError(response, "Account updated");
+    }
+
+    private void handleError(HttpServletResponse response, String message) throws IOException {
+        handleError(response, message, HttpServletResponse.SC_BAD_REQUEST);
+    }
+
+    private void handleError(HttpServletResponse response, String message, int code) throws IOException {
+        response.setStatus(code);
+        response.getWriter().write(message);
+        response.getWriter().flush();
+        response.getWriter().close();
     }
 }
