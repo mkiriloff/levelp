@@ -18,10 +18,11 @@
                 type: "POST",
                 url: "/add",
                 data: ({firstname: $("#accountFistName").val(), lastname: $("#accountLastName").val()}),
-                success: function (jqXHR, textStatus, errorThrown) {
+                success: function (data) {
                     reload();
                 },
-                error: function (jqXHR, textStatus, errorThrown) {
+                error: function (data) {
+                    reload();
                 },
             });
         }
@@ -31,10 +32,11 @@
                 type: "POST",
                 url: "/delete",
                 data: ({id: id}),
-                success: function (jqXHR, textStatus, errorThrown) {
+                success: function (data) {
                     reload();
                 },
-                error: function (jqXHR, textStatus, errorThrown) {
+                error: function (data) {
+                    reload();
                 },
             });
         }
@@ -44,10 +46,11 @@
                 type: "POST",
                 url: "/additionalSum",
                 data: ({id: $("#toIdAccount").val(), sum: $("#addedSum").val()}),
-                success: function (jqXHR, textStatus, errorThrown) {
+                success: function (data) {
                     reload();
                 },
-                error: function (jqXHR, textStatus, errorThrown) {
+                error: function (data) {
+                    reload();
                 },
             });
         }
@@ -57,10 +60,11 @@
                 type: "POST",
                 url: "/debitSum",
                 data: ({id: $("#debitfromIdAccount").val(), sum: $("#debitSum").val()}),
-                success: function (jqXHR, textStatus, errorThrown) {
+                success: function (data) {
                     reload();
                 },
-                error: function (jqXHR, textStatus, errorThrown) {
+                error: function (data) {
+                    reload();
                 },
             });
         }
@@ -70,10 +74,11 @@
                 type: "POST",
                 url: "/transfer",
                 data: ({id: id}),
-                success: function (jqXHR, textStatus, errorThrown) {
+                success: function (data) {
                     reload();
                 },
-                error: function (jqXHR, textStatus, errorThrown) {
+                error: function (data) {
+                    reload();
                 },
             });
         }

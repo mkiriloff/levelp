@@ -7,11 +7,9 @@
 
     <context:component-scan base-package="com.kirilov"/>
 
-    <beans profile="test">
-        <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-            <property name="prefix" value="/WEB-INF/pages/"/>
-            <property name="suffix" value=".jsp"/>
-        </bean>
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/pages/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
 
-    </beans>
 </beans>

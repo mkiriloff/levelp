@@ -32,6 +32,7 @@ public class TransactionController {
                 .build();
         try {
             transactionService.addedBalanceAccount(transaction);
+            handleError(response, "Transaction completed");
         } catch (EmptyResultDataAccessException e) {
             handleError(response, "Account not found");
         } catch (DataAccessException e) {
@@ -39,7 +40,6 @@ public class TransactionController {
         } catch (Throwable e) {
             handleError(response, e.getMessage());
         }
-        handleError(response, "Account updated");
     }
 
     @RequestMapping(value = "/debitSum", params = {"id", "sum"}, method = RequestMethod.POST)
@@ -55,6 +55,7 @@ public class TransactionController {
                 .build();
         try {
             transactionService.debitBalanceAccount(transaction);
+            handleError(response, "Transaction completed");
         } catch (EmptyResultDataAccessException e) {
             handleError(response, "Account not found");
         } catch (DataAccessException e) {
@@ -62,7 +63,6 @@ public class TransactionController {
         } catch (Throwable e) {
             handleError(response, e.getMessage());
         }
-        handleError(response, "Transaction completed");
     }
 
     @RequestMapping(value = "/doTransfer", params = {"fromid", "toid", "sum"}, method = RequestMethod.POST)
@@ -80,6 +80,7 @@ public class TransactionController {
                 .build();
         try {
             transactionService.doTransfer(transaction);
+            handleError(response, "Transaction completed");
         } catch (EmptyResultDataAccessException e) {
             handleError(response, "Account not found");
         } catch (DataAccessException e) {
@@ -87,7 +88,6 @@ public class TransactionController {
         } catch (Throwable e) {
             handleError(response, e.getMessage());
         }
-        handleError(response, "Transaction completed");
     }
 
     private void handleError(HttpServletResponse response, String message) throws IOException {

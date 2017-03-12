@@ -6,6 +6,7 @@ import com.kirilov.model.TransactionBuilder;
 import com.kirilov.model.TransactionType;
 import com.kirilov.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +33,8 @@ public class AccountController {
         try {
             transactionService.addAccount(account);
             handleError(response, "Account created");
+        } catch (EmptyResultDataAccessException e) {
+            handleError(response, "Account not found");
         } catch (Throwable e) {
             handleError(response, "Something went wrong");
         }
@@ -48,6 +51,8 @@ public class AccountController {
         try {
             transactionService.deleteAccount(transaction);
             handleError(response, "Account deleted");
+        } catch (EmptyResultDataAccessException e) {
+            handleError(response, "Account not found");
         } catch (Throwable e) {
             handleError(response, "Something went wrong");
         }
