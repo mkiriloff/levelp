@@ -1,8 +1,8 @@
 package com.kirilov.dao;
 
 import com.kirilov.model.Account;
-import com.kirilov.model.LevelpTransactionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
@@ -25,20 +25,20 @@ public class AccountDao {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    public boolean add(Account account) {
+    public boolean add(Account account) throws DataAccessException {
         BeanPropertySqlParameterSource parameterSource = new BeanPropertySqlParameterSource(account);
         return jdbcTemplate.update(
                 "insert into accounts (firstname, lastname) values (:firstname, :lastname)",
                 parameterSource) == 1;
     }
 
-    public boolean delete(int id) {
+    public boolean delete(int id) throws DataAccessException {
         return jdbcTemplate.update(
                 "delete from accounts where id=:id",
                 new MapSqlParameterSource("id", id)) == 1;
     }
 
-    public Account findbyId(int id) {
+    public Account findbyId(int id) throws DataAccessException {
         return jdbcTemplate.queryForObject(
                 "select * from accounts where id=:id",
                 new MapSqlParameterSource().addValue("id", id),
@@ -54,13 +54,13 @@ public class AccountDao {
                 });
     }
 
-    public boolean updateBalance(Account account) {
+    public boolean updateBalance(Account account) throws DataAccessException {
         return jdbcTemplate.update(
                 "update accounts set balance=:balance where id=:id",
                 new BeanPropertySqlParameterSource(account)) == 1;
     }
 
-    public List<Account> getAllAccount() {
+    public List<Account> getAllAccount() throws DataAccessException {
         return jdbcTemplate.query(
                 "select * from accounts",
                 BeanPropertyRowMapper.newInstance(Account.class));

@@ -41,21 +41,21 @@ public class TransactionService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
-    public boolean addAccount(Account account) {
-        return accountDao.add(account);
+    public void addAccount(Account account) throws RuntimeException {
+        accountDao.add(account);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
-    public boolean deleteAccount(int id) {
-        return accountDao.delete(id);
+    public void deleteAccount(Transaction transaction) throws RuntimeException {
+        accountDao.delete(transaction.getId());
     }
 
-    public List<Account> getAllAccount() {
+    public List<Account> getAllAccount() throws RuntimeException {
         return accountDao.getAllAccount();
     }
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
-    public void debitBalanceAccount(Transaction transaction) throws LevelpTransactionException, DataAccessException {
+    public void debitBalanceAccount(Transaction transaction) throws RuntimeException {
         addToProcessIdList(transaction.getId());
         try {
             Account processAccount = accountDao.findbyId(transaction.getId());
@@ -71,7 +71,7 @@ public class TransactionService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
-    public void addedBalanceAccount(Transaction transaction) throws DataAccessException {
+    public void addedBalanceAccount(Transaction transaction) throws RuntimeException {
         addToProcessIdList(transaction.getId());
         try {
             Account processAccount = accountDao.findbyId(transaction.getId());
@@ -83,7 +83,7 @@ public class TransactionService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
-    public void doTransfer(Transaction transaction) throws LevelpTransactionException, DataAccessException {
+    public void doTransfer(Transaction transaction) throws RuntimeException {
         addToProcessIdList(transaction.getId());
         addToProcessIdList(transaction.getFromId());
         try {

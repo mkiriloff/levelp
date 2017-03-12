@@ -1,6 +1,5 @@
 package com.kirilov.controller;
 
-import com.kirilov.model.LevelpTransactionException;
 import com.kirilov.model.Transaction;
 import com.kirilov.model.TransactionBuilder;
 import com.kirilov.model.TransactionType;
@@ -23,17 +22,21 @@ public class TransactionController {
     @RequestMapping(value = "/additionalSum", params = {"id", "sum"}, method = RequestMethod.POST)
     @ResponseBody
     public void additionalSum(
-            @RequestParam("id") int toId,
+            @RequestParam("id") int id,
             @RequestParam("sum") int sum,
             HttpServletResponse response) throws IOException {
         Transaction transaction = new TransactionBuilder()
                 .setTransactionType(TransactionType.ADDEDBALANCE)
-                .setId(toId)
+                .setId(id)
                 .setSum(sum)
                 .build();
         try {
             transactionService.addedBalanceAccount(transaction);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
+            handleError(response, "Account not found");
+        } catch (DataAccessException e) {
+            handleError(response, "Database unavailable");
+        } catch (Throwable e) {
             handleError(response, e.getMessage());
         }
         handleError(response, "Account updated");
@@ -42,20 +45,24 @@ public class TransactionController {
     @RequestMapping(value = "/debitSum", params = {"id", "sum"}, method = RequestMethod.POST)
     @ResponseBody
     public void deductionSum(
-            @RequestParam("id") int toId,
+            @RequestParam("id") int id,
             @RequestParam("sum") int sum,
             HttpServletResponse response) throws IOException {
         Transaction transaction = new TransactionBuilder()
                 .setTransactionType(TransactionType.DEBITBALANCE)
-                .setId(toId)
+                .setId(id)
                 .setSum(sum)
                 .build();
         try {
             transactionService.debitBalanceAccount(transaction);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
+            handleError(response, "Account not found");
+        } catch (DataAccessException e) {
+            handleError(response, "Database unavailable");
+        } catch (Throwable e) {
             handleError(response, e.getMessage());
         }
-        handleError(response, "Account updated");
+        handleError(response, "Transaction completed");
     }
 
     @RequestMapping(value = "/doTransfer", params = {"fromid", "toid", "sum"}, method = RequestMethod.POST)
@@ -73,10 +80,14 @@ public class TransactionController {
                 .build();
         try {
             transactionService.doTransfer(transaction);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
+            handleError(response, "Account not found");
+        } catch (DataAccessException e) {
+            handleError(response, "Database unavailable");
+        } catch (Throwable e) {
             handleError(response, e.getMessage());
         }
-        handleError(response, "Account updated");
+        handleError(response, "Transaction completed");
     }
 
     private void handleError(HttpServletResponse response, String message) throws IOException {

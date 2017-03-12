@@ -1,6 +1,9 @@
 package com.kirilov.controller;
 
 import com.kirilov.model.Account;
+import com.kirilov.model.Transaction;
+import com.kirilov.model.TransactionBuilder;
+import com.kirilov.model.TransactionType;
 import com.kirilov.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -26,9 +29,10 @@ public class AccountController {
         account.setFirstname(firstName);
         account.setLastname(lastName);
 
-        if (transactionService.addAccount(account)) {
+        try {
+            transactionService.addAccount(account);
             handleError(response, "Account created");
-        } else {
+        } catch (Throwable e) {
             handleError(response, "Something went wrong");
         }
     }
@@ -37,9 +41,14 @@ public class AccountController {
     @ResponseBody
     public void deleteAccount(@RequestParam("id") int id,
                               HttpServletResponse response) throws IOException {
-        if (transactionService.deleteAccount(id)) {
+        Transaction transaction = new TransactionBuilder()
+                .setTransactionType(TransactionType.REMOVEACCOUNT)
+                .setId(id)
+                .build();
+        try {
+            transactionService.deleteAccount(transaction);
             handleError(response, "Account deleted");
-        } else {
+        } catch (Throwable e) {
             handleError(response, "Something went wrong");
         }
     }
