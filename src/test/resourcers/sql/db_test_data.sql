@@ -1,4 +1,0 @@
--- INSERT INTO accounts (firstname, lastname) VALUES ('test1', 'test1');
--- INSERT INTO accounts (firstname, lastname) VALUES ('test1', 'test1');
--- INSERT INTO accounts (firstname, lastname) VALUES ('test1', 'test1');
--- INSERT INTO accounts (firstname, lastname) VALUES ('test1', 'test1');

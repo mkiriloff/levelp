@@ -3,8 +3,6 @@ package com.kirilov.service;
 import com.kirilov.dao.AccountDao;
 import com.kirilov.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -47,11 +45,14 @@ public class TransactionService {
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
     public void deleteAccount(Transaction transaction) throws RuntimeException {
+        accountDao.findbyId(transaction.getId());
         accountDao.delete(transaction.getId());
     }
 
     public List<Account> getAllAccount() throws RuntimeException {
-        return accountDao.getAllAccount();
+        List<Account> accounts = accountDao.getAllAccount();
+        accounts.sort(Account::compareTo);
+        return accounts;
     }
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
@@ -63,7 +64,7 @@ public class TransactionService {
                 processAccount.setBalance(processAccount.getBalance() - transaction.getSum());
                 accountDao.updateBalance(processAccount);
             } else {
-                throw new LevelpTransactionException("On account " + transaction.getId() + " has insufficient funds");
+                throw new LevelpTransactionException("On account id " + transaction.getId() + " has insufficient funds");
             }
         } finally {
             removeFromProcessIdList(transaction.getId());
@@ -84,20 +85,23 @@ public class TransactionService {
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
     public void doTransfer(Transaction transaction) throws RuntimeException {
-        addToProcessIdList(transaction.getId());
         addToProcessIdList(transaction.getFromId());
+        addToProcessIdList(transaction.getId());
         try {
             Account fromAccount = accountDao.findbyId(transaction.getFromId());
             Account toAccount = accountDao.findbyId(transaction.getId());
             if (fromAccount.getBalance() - transaction.getSum() >= 0) {
                 fromAccount.setBalance(fromAccount.getBalance() - transaction.getSum());
                 toAccount.setBalance(toAccount.getBalance() + transaction.getSum());
+                accountDao.updateBalance(fromAccount);
+                accountDao.updateBalance(toAccount);
             } else {
-                throw new LevelpTransactionException("On account" + transaction.getFromId() + " has insufficient funds");
+                throw new LevelpTransactionException("On account id " + transaction.getFromId() + " has insufficient funds");
             }
         } finally {
-            removeFromProcessIdList(transaction.getId());
             removeFromProcessIdList(transaction.getFromId());
+            removeFromProcessIdList(transaction.getId());
+
         }
     }
 }

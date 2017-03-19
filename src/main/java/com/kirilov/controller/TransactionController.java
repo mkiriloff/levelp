@@ -1,5 +1,6 @@
 package com.kirilov.controller;
 
+import com.kirilov.model.LevelpTransactionException;
 import com.kirilov.model.Transaction;
 import com.kirilov.model.TransactionBuilder;
 import com.kirilov.model.TransactionType;
@@ -32,13 +33,13 @@ public class TransactionController {
                 .build();
         try {
             transactionService.addedBalanceAccount(transaction);
-            handleError(response, "Transaction completed");
+            handleError(response, "Transaction completed", HttpServletResponse.SC_OK);
         } catch (EmptyResultDataAccessException e) {
-            handleError(response, "Account not found");
+            handleError(response, "Account not found", HttpServletResponse.SC_BAD_REQUEST);
         } catch (DataAccessException e) {
-            handleError(response, "Database unavailable");
+            handleError(response, "Database unavailable", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (Throwable e) {
-            handleError(response, e.getMessage());
+            handleError(response, e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -55,13 +56,15 @@ public class TransactionController {
                 .build();
         try {
             transactionService.debitBalanceAccount(transaction);
-            handleError(response, "Transaction completed");
+            handleError(response, "Transaction completed", HttpServletResponse.SC_OK);
         } catch (EmptyResultDataAccessException e) {
-            handleError(response, "Account not found");
+            handleError(response, "Account not found", HttpServletResponse.SC_BAD_REQUEST);
         } catch (DataAccessException e) {
-            handleError(response, "Database unavailable");
+            handleError(response, "Database unavailable", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        } catch (LevelpTransactionException e) {
+            handleError(response, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
         } catch (Throwable e) {
-            handleError(response, e.getMessage());
+            handleError(response, e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -80,18 +83,16 @@ public class TransactionController {
                 .build();
         try {
             transactionService.doTransfer(transaction);
-            handleError(response, "Transaction completed");
+            handleError(response, "Transaction completed", HttpServletResponse.SC_OK);
         } catch (EmptyResultDataAccessException e) {
-            handleError(response, "Account not found");
+            handleError(response, "Account not found", HttpServletResponse.SC_BAD_REQUEST);
         } catch (DataAccessException e) {
-            handleError(response, "Database unavailable");
-        } catch (Throwable e) {
-            handleError(response, e.getMessage());
+            handleError(response, "Database unavailable", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        } catch (LevelpTransactionException e) {
+            handleError(response, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
+        } catch (Throwable e){
+            handleError(response, e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
-    }
-
-    private void handleError(HttpServletResponse response, String message) throws IOException {
-        handleError(response, message, HttpServletResponse.SC_BAD_REQUEST);
     }
 
     private void handleError(HttpServletResponse response, String message, int code) throws IOException {

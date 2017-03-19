@@ -2,7 +2,7 @@ package com.kirilov.model;
 
 import java.io.Serializable;
 
-public class Account implements Serializable {
+public class Account implements Serializable, Comparable<Account> {
 
     private Integer id;
     private int balance;
@@ -55,5 +55,10 @@ public class Account implements Serializable {
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
+    }
+
+    @Override
+    public int compareTo(Account o) {
+        return this.getid() - o.getid();
     }
 }

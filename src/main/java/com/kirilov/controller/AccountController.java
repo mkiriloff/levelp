@@ -32,11 +32,11 @@ public class AccountController {
 
         try {
             transactionService.addAccount(account);
-            handleError(response, "Account created");
+            handleError(response, "Account created", HttpServletResponse.SC_OK);
         } catch (EmptyResultDataAccessException e) {
-            handleError(response, "Account not found");
+            handleError(response, "Account not found", HttpServletResponse.SC_BAD_REQUEST);
         } catch (Throwable e) {
-            handleError(response, "Something went wrong");
+            handleError(response, "Something went wrong",  HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -50,16 +50,12 @@ public class AccountController {
                 .build();
         try {
             transactionService.deleteAccount(transaction);
-            handleError(response, "Account deleted");
+            handleError(response, "Account deleted", HttpServletResponse.SC_OK);
         } catch (EmptyResultDataAccessException e) {
-            handleError(response, "Account not found");
+            handleError(response, "Account not found", HttpServletResponse.SC_BAD_REQUEST);
         } catch (Throwable e) {
-            handleError(response, "Something went wrong");
+            handleError(response, "Something went wrong",  HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
-    }
-
-    private void handleError(HttpServletResponse response, String message) throws IOException {
-        handleError(response, message, HttpServletResponse.SC_BAD_REQUEST);
     }
 
     private void handleError(HttpServletResponse response, String message, int code) throws IOException {
