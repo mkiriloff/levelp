@@ -1,6 +1,5 @@
 package com.kirilov.model;
 
-
 public class TransactionBuilder {
     private TransactionType transactionType;
     private int sum;

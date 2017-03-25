@@ -10,13 +10,13 @@
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/beans/mvc/context-3.2.xsd
-       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
 
     <bean id="dataSource"
-          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="org.postgresql.Driver"/>
-        <property name="url" value="jdbc:postgresql://localhost:5432/test"/>
-        <property name="username" value="postgres"/>
-        <property name="password" value="root"/>
+          class="org.h2.jdbcx.JdbcDataSource">
+        <property name="url" value="jdbc:h2:mem:test;MODE=PostgreSQL"/>
+        <property name="user" value="sa"/>
+        <property name="password" value=""/>
     </bean>
 </beans>

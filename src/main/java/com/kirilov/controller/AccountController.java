@@ -5,21 +5,23 @@ import com.kirilov.model.Transaction;
 import com.kirilov.model.TransactionBuilder;
 import com.kirilov.model.TransactionType;
 import com.kirilov.service.TransactionService;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
 
 @Controller
 public class AccountController {
 
     @Autowired
     private TransactionService transactionService;
+
+    private static Logger logger = Logger.getLogger(AccountController.class);
 
     @RequestMapping(value = "/add", params = {"firstname", "lastname"}, method = RequestMethod.POST)
     @ResponseBody
@@ -33,10 +35,9 @@ public class AccountController {
         try {
             transactionService.addAccount(account);
             handleError(response, "Account created", HttpServletResponse.SC_OK);
-        } catch (EmptyResultDataAccessException e) {
-            handleError(response, "Account not found", HttpServletResponse.SC_BAD_REQUEST);
         } catch (Throwable e) {
-            handleError(response, "Something went wrong",  HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            logger.info(e.getMessage());
+            handleError(response, "Something went wrong", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -52,9 +53,11 @@ public class AccountController {
             transactionService.deleteAccount(transaction);
             handleError(response, "Account deleted", HttpServletResponse.SC_OK);
         } catch (EmptyResultDataAccessException e) {
-            handleError(response, "Account not found", HttpServletResponse.SC_BAD_REQUEST);
+            handleError(response, "Account" + transaction.getId() + "not found", HttpServletResponse.SC_BAD_REQUEST);
+            logger.info(e.getMessage());
         } catch (Throwable e) {
-            handleError(response, "Something went wrong",  HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            handleError(response, "Something went wrong", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            logger.info(e.getMessage());
         }
     }
 

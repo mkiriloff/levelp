@@ -8,7 +8,6 @@ public class Account implements Serializable, Comparable<Account> {
     private int balance;
     private String firstname;
     private String lastname;
-//    private BigDecimal bigDecimal;
 
     public int getid() {
         return id;

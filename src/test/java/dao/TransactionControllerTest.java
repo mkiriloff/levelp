@@ -15,6 +15,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 import static junit.framework.TestCase.assertTrue;
@@ -24,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ActiveProfiles("dev")
 @ContextConfiguration(locations = {
-        "file:src/test/resourcers/config/applicationContext.xml",
+        "file:src/test/resourcers/config/test-context.xml",
         "file:src/test/resourcers/config/test-config.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -37,7 +40,11 @@ public class TransactionControllerTest {
     @Autowired
     private TransactionService transactionService;
 
+    @Autowired
+    private DataSource dataSource;
+
     private MockMvc mockMvc;
+    private Connection connection;
 
     @Before
     public void setUp() throws SQLException {
@@ -46,6 +53,11 @@ public class TransactionControllerTest {
 
     @After
     public void tearDown() {
+    }
+
+    @PostConstruct
+    private void postConstruct() throws SQLException {
+        connection = dataSource.getConnection();
     }
 
     private void addAccount() {

@@ -22,6 +22,7 @@
                     reload();
                 },
                 error: function (data) {
+                    alert(data.responseText);
                     reload();
                 },
             });
@@ -36,6 +37,7 @@
                     reload();
                 },
                 error: function (data) {
+                    alert(data.responseText);
                     reload();
                 },
             });
@@ -45,11 +47,12 @@
             $.ajax({
                 type: "POST",
                 url: "/additionalSum",
-                data: ({id: $("#toIdAccount").val(), sum: $("#addedSum").val()}),
+                data: ({id: $("#addedtoIdAccount").val(), sum: $("#addedSum").val()}),
                 success: function (data) {
                     reload();
                 },
                 error: function (data) {
+                    alert(data.responseText);
                     reload();
                 },
             });
@@ -64,6 +67,7 @@
                     reload();
                 },
                 error: function (data) {
+                    alert(data.responseText);
                     reload();
                 },
             });
@@ -72,12 +76,17 @@
         function transfer() {
             $.ajax({
                 type: "POST",
-                url: "/transfer",
-                data: ({id: id}),
+                url: "/doTransfer",
+                data: ({
+                    fromid: $("#transferFromIdAccount").val(),
+                    toid: $("#transferToIdAccount").val(),
+                    sum: $("#transferSum").val()
+                }),
                 success: function (data) {
                     reload();
                 },
                 error: function (data) {
+                    alert(data.responseText);
                     reload();
                 },
             });
@@ -96,6 +105,9 @@
     </button>
     <button type="button" class="btn btn-default action-button" id="button_debit_balance" data-toggle="modal"
             data-target="#debitAccountDialog">Debit balance
+    </button>
+    <button type="button" class="btn btn-default action-button" id="button_transfer" data-toggle="modal"
+            data-target="#transferDialog">Transfer
     </button>
 
     <table class="table">
@@ -155,12 +167,12 @@
                 <h4 class="modal-title">Added balance</h4>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="toIdAccount">ID account</label>
-                        <input type="text" class="form-control" id="toIdAccount">
+                        <label for="addedtoIdAccount">ID account</label>
+                        <input type="number" class="form-control" id="addedtoIdAccount">
                     </div>
                     <div class="form-group">
                         <label for="addedSum">Sum</label>
-                        <input type="text" class="form-control" id="addedSum">
+                        <input type="number" class="form-control" id="addedSum">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -181,11 +193,11 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="debitfromIdAccount">ID account</label>
-                        <input type="text" class="form-control" id="debitfromIdAccount">
+                        <input type="number" class="form-control" id="debitfromIdAccount">
                     </div>
                     <div class="form-group">
                         <label for="debitSum">Sum</label>
-                        <input type="text" class="form-control" id="debitSum">
+                        <input type="number" pattern="0-9]{1,20}" class="form-control" id="debitSum">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -205,38 +217,26 @@
                 <h4 class="modal-title">Transfer to account</h4>
                 <div class="modal-body">
                     <div class="form-group">
+                        <label for="transferFromIdAccount">From ID account</label>
+                        <input type="number" class="form-control" id="transferFromIdAccount">
+                    </div>
+                    <div class="form-group">
                         <label for="transferToIdAccount">To ID account</label>
-                        <input type="text" class="form-control" id="transferToIdAccount">
+                        <input type="number" class="form-control" id="transferToIdAccount">
                     </div>
                     <div class="form-group">
                         <label for="transferSum">Sum</label>
-                        <input type="text" class="form-control" id="transferSum">
+                        <input type="number" class="form-control" id="transferSum">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" onclick="transfer()"
-                            data-dismiss="modal">Debit
+                            data-dismiss="modal">Transfer
                     </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div class="modal fade" id="alert" role="dialog" aria-hidden="true" id="alertdiv">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Transfer to account</h4>
-                <div class="modal-body">
-                    <label for="transferToIdAccount">Alarm</label>
-                </div>
-                <div class="modal-footer">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
 </body>
