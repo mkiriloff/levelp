@@ -53,11 +53,12 @@ public class AccountController {
             transactionService.deleteAccount(transaction);
             handleError(response, "Account deleted", HttpServletResponse.SC_OK);
         } catch (EmptyResultDataAccessException e) {
+            logger.info(e.getMessage());
             handleError(response, "Account" + transaction.getId() + "not found", HttpServletResponse.SC_BAD_REQUEST);
-            logger.info(e.getMessage());
         } catch (Throwable e) {
-            handleError(response, "Something went wrong", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             logger.info(e.getMessage());
+            handleError(response, "Something went wrong", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
         }
     }
 
