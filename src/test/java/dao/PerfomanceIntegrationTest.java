@@ -276,7 +276,7 @@ public class PerfomanceIntegrationTest {
             public void run() {
                 try {
                     mockMvc.perform(post("/doTransfer")
-                            .param("fromid", "3")
+                            .param("fromid", "1")
                             .param("toid", "2")
                             .param("sum", "30"))
                             .andExpect(status().isOk())
@@ -291,8 +291,8 @@ public class PerfomanceIntegrationTest {
             public void run() {
                 try {
                     mockMvc.perform(post("/doTransfer")
-                            .param("fromid", "1")
-                            .param("toid", "2")
+                            .param("fromid", "2")
+                            .param("toid", "3")
                             .param("sum", "10"))
                             .andExpect(status().isOk())
                             .andExpect(content().string("Transaction completed"));

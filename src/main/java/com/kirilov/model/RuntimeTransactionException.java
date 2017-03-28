@@ -1,24 +1,24 @@
 package com.kirilov.model;
 
-public class LevelpTransactionException extends RuntimeException {
+public class RuntimeTransactionException extends RuntimeException {
 
-    public LevelpTransactionException() {
+    public RuntimeTransactionException() {
         super();
     }
 
-    public LevelpTransactionException(String message) {
+    public RuntimeTransactionException(String message) {
         super(message);
     }
 
-    public LevelpTransactionException(String message, Throwable cause) {
+    public RuntimeTransactionException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public LevelpTransactionException(Throwable cause) {
+    public RuntimeTransactionException(Throwable cause) {
         super(cause);
     }
 
-    protected LevelpTransactionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected RuntimeTransactionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

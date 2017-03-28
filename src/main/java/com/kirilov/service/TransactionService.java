@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,32 +28,36 @@ public class TransactionService {
                 try {
                     processIdList.wait();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage());
                 }
             }
             processIdList.add(id);
+            logger.info("Account id: " + id + " added to process list");
         }
     }
 
     private void removeFromProcessIdList(Integer id) {
         synchronized (processIdList) {
             processIdList.remove(id);
+            logger.info("Account deleted id: " + id + " from process list");
             processIdList.notifyAll();
+
         }
     }
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
     public void addAccount(Account account) throws RuntimeException {
-        accountDao.add(account);
-        logger.info("Account added " + account.getFirstname() + " " + account.getLastname());
-
+        if (accountDao.add(account)) {
+            logger.info("Created new account - " + account.getFirstname() + " " + account.getLastname());
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
     public void deleteAccount(Transaction transaction) throws RuntimeException {
         accountDao.findbyId(transaction.getId());
-        accountDao.delete(transaction.getId());
-        logger.info("Account deleted id " + transaction.getId());
+        if (accountDao.delete(transaction.getId())) {
+            logger.info("Account deleted id " + transaction.getId());
+        }
     }
 
     public List<Account> getAllAccount() throws RuntimeException {
@@ -69,10 +74,9 @@ public class TransactionService {
             if (processAccount.getBalance() - transaction.getSum() >= 0) {
                 processAccount.setBalance(processAccount.getBalance() - transaction.getSum());
                 accountDao.updateBalance(processAccount);
-                logger.info("Account updated id " + transaction.getId());
+                logger.info("Debit sum " + transaction.getSum() + ", from Account id " + transaction.getId() + ". New balance: " + processAccount.getBalance());
             } else {
-                logger.error("On account id " + transaction.getId() + " has insufficient funds");
-                throw new LevelpTransactionException("On account id " + transaction.getId() + " has insufficient funds");
+                throw new RuntimeTransactionException("On account id " + transaction.getId() + " has insufficient funds");
             }
         } finally {
             removeFromProcessIdList(transaction.getId());
@@ -86,7 +90,7 @@ public class TransactionService {
             Account processAccount = accountDao.findbyId(transaction.getId());
             processAccount.setBalance(processAccount.getBalance() + transaction.getSum());
             accountDao.updateBalance(processAccount);
-            logger.info("Accounts updated id: " + transaction.getId());
+            logger.info("Added sum " + transaction.getSum() + ", from Account id " + transaction.getId() + ". New balance: " + processAccount.getBalance());
         } finally {
             removeFromProcessIdList(transaction.getId());
         }
@@ -104,10 +108,10 @@ public class TransactionService {
                 toAccount.setBalance(toAccount.getBalance() + transaction.getSum());
                 accountDao.updateBalance(fromAccount);
                 accountDao.updateBalance(toAccount);
-                logger.info("Accounts updated id: " + transaction.getFromId() + " " + transaction.getId());
+                logger.info("Transaction done," + " id: " + fromAccount.getid() + ", new balance " + fromAccount.getBalance() +
+                        " and id: " + toAccount.getid() + ", new balance " + toAccount.getBalance());
             } else {
-                logger.error("On account id " + transaction.getFromId() + " has insufficient funds");
-                throw new LevelpTransactionException("On account id " + transaction.getFromId() + " has insufficient funds");
+                throw new RuntimeTransactionException("On account id " + transaction.getFromId() + " has insufficient funds");
             }
         } finally {
             removeFromProcessIdList(transaction.getFromId());
