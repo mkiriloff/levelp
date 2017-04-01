@@ -22,24 +22,24 @@ public class TransactionService {
     private final Set<Integer> processIdList = new HashSet<Integer>();
     private static Logger logger = Logger.getLogger(TransactionController.class);
 
-    private void addToProcessIdList(Integer id) {
+    private void addToProcessIdList(Transaction transaction) {
         synchronized (processIdList) {
-            while (processIdList.contains(id)) {
+            while (processIdList.containsAll(transaction.getAllId())) {
                 try {
                     processIdList.wait();
                 } catch (InterruptedException e) {
                     logger.error(e.getMessage());
                 }
             }
-            processIdList.add(id);
-            logger.info("Account id: " + id + " added to process list");
+            processIdList.addAll(transaction.getAllId());
+            logger.info(TransactionService.class.getSimpleName() + ": addToProcessIdList id: " + transaction.getAllId());
         }
     }
 
-    private void removeFromProcessIdList(Integer id) {
+    private void removeFromProcessIdList(Transaction transaction) {
         synchronized (processIdList) {
-            processIdList.remove(id);
-            logger.info("Account deleted id: " + id + " from process list");
+            processIdList.removeAll(transaction.getAllId());
+            logger.info(TransactionService.class.getSimpleName() + ": removeFromProcessIdList id: " + transaction.getAllId());
             processIdList.notifyAll();
 
         }
@@ -48,7 +48,8 @@ public class TransactionService {
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
     public void addAccount(Account account) throws RuntimeException {
         if (accountDao.add(account)) {
-            logger.info("Created new account - " + account.getFirstname() + " " + account.getLastname());
+            logger.info(TransactionService.class.getSimpleName() + ": addAccount: " + account.getFirstname() + ", " + account.getLastname());
+
         }
     }
 
@@ -56,7 +57,7 @@ public class TransactionService {
     public void deleteAccount(Transaction transaction) throws RuntimeException {
         accountDao.findbyId(transaction.getId());
         if (accountDao.delete(transaction.getId())) {
-            logger.info("Account deleted id " + transaction.getId());
+            logger.info(TransactionService.class.getSimpleName() + ": deleteAccount id: " + transaction.getId());
         }
     }
 
@@ -68,38 +69,37 @@ public class TransactionService {
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
     public void debitBalanceAccount(Transaction transaction) throws RuntimeException {
-        addToProcessIdList(transaction.getId());
+        addToProcessIdList(transaction);
         try {
             Account processAccount = accountDao.findbyId(transaction.getId());
             if (processAccount.getBalance() - transaction.getSum() >= 0) {
                 processAccount.setBalance(processAccount.getBalance() - transaction.getSum());
                 accountDao.updateBalance(processAccount);
-                logger.info("Debit sum " + transaction.getSum() + ", from Account id " + transaction.getId() + ". New balance: " + processAccount.getBalance());
+                logger.info(TransactionService.class.getSimpleName() + ": debitBalanceAccount id: " + transaction.getId() + " Balance: " + processAccount.getBalance());
             } else {
                 throw new RuntimeTransactionException("On account id " + transaction.getId() + " has insufficient funds");
             }
         } finally {
-            removeFromProcessIdList(transaction.getId());
+            removeFromProcessIdList(transaction);
         }
     }
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
     public void addedBalanceAccount(Transaction transaction) throws RuntimeException {
-        addToProcessIdList(transaction.getId());
+        addToProcessIdList(transaction);
         try {
             Account processAccount = accountDao.findbyId(transaction.getId());
             processAccount.setBalance(processAccount.getBalance() + transaction.getSum());
             accountDao.updateBalance(processAccount);
-            logger.info("Added sum " + transaction.getSum() + ", from Account id " + transaction.getId() + ". New balance: " + processAccount.getBalance());
+            logger.info(TransactionService.class.getSimpleName() + ": addedBalanceAccount id: " + transaction.getId() + " Balance: " + processAccount.getBalance());
         } finally {
-            removeFromProcessIdList(transaction.getId());
+            removeFromProcessIdList(transaction);
         }
     }
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
     public void doTransfer(Transaction transaction) throws RuntimeException {
-        addToProcessIdList(transaction.getFromId());
-        addToProcessIdList(transaction.getId());
+        addToProcessIdList(transaction);
         try {
             Account fromAccount = accountDao.findbyId(transaction.getFromId());
             Account toAccount = accountDao.findbyId(transaction.getId());
@@ -108,15 +108,14 @@ public class TransactionService {
                 toAccount.setBalance(toAccount.getBalance() + transaction.getSum());
                 accountDao.updateBalance(fromAccount);
                 accountDao.updateBalance(toAccount);
-                logger.info("Transaction done," + " id: " + fromAccount.getid() + ", new balance " + fromAccount.getBalance() +
-                        " and id: " + toAccount.getid() + ", new balance " + toAccount.getBalance());
+                logger.info(TransactionService.class.getSimpleName() + ": " +
+                        "doTransfer id: " + fromAccount.getid() + " > " + toAccount.getid() +
+                        ", Balance: " + fromAccount.getBalance() + ", " + toAccount.getBalance());
             } else {
                 throw new RuntimeTransactionException("On account id " + transaction.getFromId() + " has insufficient funds");
             }
         } finally {
-            removeFromProcessIdList(transaction.getFromId());
-            removeFromProcessIdList(transaction.getId());
-
+            removeFromProcessIdList(transaction);
         }
     }
 }

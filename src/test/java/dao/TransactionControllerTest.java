@@ -63,7 +63,7 @@ public class TransactionControllerTest {
     private void addAccount() {
         Account account = new Account();
         account.setFirstname("Test1");
-        account.setFirstname("Test1");
+        account.setLastname("Test1");
         transactionService.addAccount(account);
     }
 

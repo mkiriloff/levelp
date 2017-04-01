@@ -28,7 +28,7 @@ public class MainController {
         try {
             accounts = transactionService.getAllAccount();
         } catch (DataAccessException e) {
-            logger.error(e.getMessage());
+            logger.error(MainController.class.getSimpleName() + ": " + e.getMessage());
         }
         model.addAttribute("accounts", accounts);
         return "index";

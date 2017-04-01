@@ -1,5 +1,8 @@
 package com.kirilov.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Transaction {
     private TransactionType transactionType;
     private int sum;
@@ -27,5 +30,16 @@ public class Transaction {
 
     public int getId() {
         return id;
+    }
+
+    public List<Integer> getAllId() {
+        List<Integer> list = new ArrayList<>();
+        if (fromId != 0){
+            list.add(fromId);
+        }
+        if (id != 0){
+            list.add(id);
+        }
+        return list;
     }
 }
