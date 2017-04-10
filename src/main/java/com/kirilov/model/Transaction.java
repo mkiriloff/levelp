@@ -42,4 +42,26 @@ public class Transaction {
         }
         return list;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Transaction that = (Transaction) o;
+
+        if (sum != that.sum) return false;
+        if (fromId != that.fromId) return false;
+        if (id != that.id) return false;
+        return transactionType == that.transactionType;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = transactionType != null ? transactionType.hashCode() : 0;
+        result = 31 * result + sum;
+        result = 31 * result + fromId;
+        result = 31 * result + id;
+        return result;
+    }
 }

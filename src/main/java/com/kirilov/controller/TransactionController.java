@@ -39,13 +39,13 @@ public class TransactionController {
             transactionService.addedBalanceAccount(transaction);
             handleError(response, "Transaction completed", HttpServletResponse.SC_OK);
         } catch (EmptyResultDataAccessException e) {
-            logger.error(TransactionController.class.getSimpleName() + ": " + e.getMessage());
+            logger.error(TransactionController.class.getSimpleName() + ": " + e);
             handleError(response, "Account not found", HttpServletResponse.SC_BAD_REQUEST);
         } catch (DataAccessException e) {
-            logger.error(TransactionController.class.getSimpleName() + ": " + e.getMessage());
+            logger.error(TransactionController.class.getSimpleName() + ": " + e);
             handleError(response, "Database unavailable", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (Throwable e) {
-            logger.error(TransactionController.class.getSimpleName() + ": " + e.getMessage());
+            logger.error(TransactionController.class.getSimpleName() + ": " + e);
             handleError(response, e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
@@ -65,16 +65,16 @@ public class TransactionController {
             transactionService.debitBalanceAccount(transaction);
             handleError(response, "Transaction completed", HttpServletResponse.SC_OK);
         } catch (EmptyResultDataAccessException e) {
-            logger.error(TransactionController.class.getSimpleName() + ": " + e.getMessage());
+            logger.error(TransactionController.class.getSimpleName() + ": " + e);
             handleError(response, "Account not found", HttpServletResponse.SC_BAD_REQUEST);
         } catch (DataAccessException e) {
-            logger.error(TransactionController.class.getSimpleName() + ": " + e.getMessage());
+            logger.error(TransactionController.class.getSimpleName() + ": " + e);
             handleError(response, "Database unavailable", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (RuntimeTransactionException e) {
-            logger.error(TransactionController.class.getSimpleName() + ": " + e.getMessage());
+            logger.error(TransactionController.class.getSimpleName() + ": " + e);
             handleError(response, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
         } catch (Throwable e) {
-            logger.error(TransactionController.class.getSimpleName() + ": " + e.getMessage());
+            logger.error(TransactionController.class.getSimpleName() + ": " + e);
             handleError(response, e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
@@ -96,16 +96,16 @@ public class TransactionController {
             transactionService.doTransfer(transaction);
             handleError(response, "Transaction completed", HttpServletResponse.SC_OK);
         } catch (EmptyResultDataAccessException e) {
-            logger.error(TransactionController.class.getSimpleName() + ": " + e.getMessage());
+            logger.error(TransactionController.class.getSimpleName() + ": " + e);
             handleError(response, "Account not found", HttpServletResponse.SC_BAD_REQUEST);
         } catch (DataAccessException e) {
-            logger.error(TransactionController.class.getSimpleName() + ": " + e.getMessage());
+            logger.error(TransactionController.class.getSimpleName() + ": " + e);
             handleError(response, "Database unavailable", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (RuntimeTransactionException e) {
-            logger.error(TransactionController.class.getSimpleName() + ": " + e.getMessage());
+            logger.error(TransactionController.class.getSimpleName() + ": " + e);
             handleError(response, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
         } catch (Throwable e) {
-            logger.error(TransactionController.class.getSimpleName() + ": " + e.getMessage());
+            logger.error(TransactionController.class.getSimpleName() + ": " + e);
             handleError(response, e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }

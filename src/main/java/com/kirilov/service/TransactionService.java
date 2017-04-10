@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,13 +23,15 @@ public class TransactionService {
     private final Set<Integer> processIdList = new HashSet<Integer>();
     private static Logger logger = Logger.getLogger(TransactionController.class);
 
+    private final Set<Integer> process = Collections.synchronizedSet(new HashSet<Integer>());
+
     private void addToProcessIdList(Transaction transaction) {
         synchronized (processIdList) {
             while (processIdList.containsAll(transaction.getAllId())) {
                 try {
                     processIdList.wait();
                 } catch (InterruptedException e) {
-                    logger.error(e.getMessage());
+                    logger.error(e.getStackTrace());
                 }
             }
             processIdList.addAll(transaction.getAllId());
